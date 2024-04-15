@@ -1,0 +1,120 @@
+[gd_scene load_steps=11 format=3 uid="uid://bi1baeuwqvb6e"]
+
+[ext_resource type="Script" path="res://Scripts/Gun.gd" id="1_2vj48"]
+[ext_resource type="PackedScene" uid="uid://sqyo64bbbpy" path="res://assets/Thompson/scene.gltf" id="1_xmlw6"]
+[ext_resource type="AudioStream" uid="uid://dlsrmt72b6nn5" path="res://assets/Thompson/258198__wadaltmon__thompson-smg-shot.wav" id="3_dmfan"]
+[ext_resource type="Texture2D" uid="uid://dtsaauv8bhcip" path="res://assets/Thompson/muzzleflash.png" id="3_k1jbu"]
+
+[sub_resource type="Animation" id="Animation_o0dvf"]
+resource_name = "Gunshot"
+length = 0.16
+step = 0.01
+tracks/0/type = "position_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("GunModel")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 0.08, 1, 0, 0, 1, 0.16, 1, 0, 0, 0)
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("GPUParticles3D:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "audio"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AnimationPlayer/AudioStreamPlayer")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"clips": [{
+"end_offset": 0.0714966,
+"start_offset": 0.0,
+"stream": ExtResource("3_dmfan")
+}],
+"times": PackedFloat32Array(0)
+}
+tracks/2/use_blend = true
+
+[sub_resource type="Animation" id="Animation_l0h6v"]
+resource_name = "Reloading"
+tracks/0/type = "rotation_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.5, 1, -0.221, 0, 0, 0.975, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_wi6m7"]
+_data = {
+"Gunshot": SubResource("Animation_o0dvf"),
+"Reloading": SubResource("Animation_l0h6v")
+}
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_khm2j"]
+lifetime_randomness = 0.5
+initial_velocity_min = 10.0
+initial_velocity_max = 10.0
+gravity = Vector3(0, 0, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nqjvn"]
+transparency = 4
+blend_mode = 1
+albedo_texture = ExtResource("3_k1jbu")
+emission_enabled = true
+emission = Color(1, 0.545098, 0, 1)
+emission_energy_multiplier = 3.0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_mdjcx"]
+material = SubResource("StandardMaterial3D_nqjvn")
+size = Vector2(0.07, 0.07)
+
+[node name="Node3D" type="Node3D"]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0)
+script = ExtResource("1_2vj48")
+
+[node name="GunModel" parent="." instance=ExtResource("1_xmlw6")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_wi6m7")
+}
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="AnimationPlayer"]
+volume_db = -26.096
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, -3.55271e-15, 0, 1, 0, 3.55271e-15, 0, 1, 0.105691, 5.38988, -33.9123)
+emitting = false
+amount = 5
+lifetime = 0.05
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_khm2j")
+draw_pass_1 = SubResource("QuadMesh_mdjcx")
+
+[node name="Marker3D" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.5538, 5.22974, 0)
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.2
+autostart = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-23.3785, 0, -97.2288, 0, 100, 0, 97.2288, 0, -23.3785, -88.1546, 0, -28.4827)
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
